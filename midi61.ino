@@ -1,5 +1,6 @@
-// * = Adjustable variable
+uint8_t TRANSPOSE = 0;
 
+// * = Adjustable variable
 // Keep track the matrix
 volatile uint8_t columnPin = 1;   //  Keep this value to 1
 volatile uint8_t column = 0;      // *Adjust this value to offset the column
@@ -54,13 +55,13 @@ void printBinary16(uint16_t value) {
 
 void sendNoteOn(uint8_t note, uint8_t velocity, uint8_t channel = 0) {
   Serial.write(0x90 | (channel & 0x0f));
-  Serial.write(note & 0x7f);
+  Serial.write((note + TRANSPOSE) & 0x7f);
   Serial.write(velocity & 0x7f);
 }
 
 void sendNoteOff(uint8_t note, uint8_t velocity, uint8_t channel = 0) {
   Serial.write(0x80 | (channel & 0x0f));
-  Serial.write(note & 0x7f);
+  Serial.write((note + TRANSPOSE) & 0x7f);
   Serial.write(velocity & 0x7f);
 }
 
