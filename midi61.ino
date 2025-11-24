@@ -52,9 +52,19 @@ void printBinary16(uint16_t value) {
   Serial.println();
 }
 
+void sendNoteOn(uint8_t note, uint8_t velocity, uint8_t channel = 0) {
+  Serial.write(0x90 | (channel & 0x0f));
+  Serial.write(note & 0x7f);
+  Serial.write(velocity & 0x7f);
+}
+
+void sendNoteOff(uint8_t note, uint8_t velocity, uint8_t channel = 0) {
+  Serial.write(0x80 | (channel & 0x0f));
+  Serial.write(note & 0x7f);
+  Serial.write(velocity & 0x7f);
+}
 
 void loop() {
-  //delay(10);
   // Update row scanning index
   columnPin = (columnPin << 1) & 0xff; // Circular shift column
   if (columnPin == 0) columnPin = 1;   // Reset columnPin if it overflows
@@ -73,7 +83,7 @@ void loop() {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
           if (!(previousButton[i][j])) { // If a note was active
-            Serial.write((midiNote[i][j])); // Send Note Off
+            sendNoteOff(midiNote[i][j], 0);
           }
         }
       }
@@ -88,16 +98,14 @@ void loop() {
       buttonState = (~PIND >> (4 + i)) & 1;
       currentButton[column][i] = buttonState;
 
-      // Send midiNote with 0x80 when pressed
       if ((currentButton[column][i]) && !(previousButton[column][i])) {
         //Serial.print(midiNote[column][i]); Serial.println(" ON");
-        Serial.write((midiNote[column][i]) | 0x80);
+        sendNoteOn(midiNote[column][i],127);
       }
     
-      // Send only midiNote when released
       if (!(currentButton[column][i]) && (previousButton[column][i]) && ((PINB>>4)&1)) {
         //Serial.print(midiNote[column][i]); Serial.println(" OFF");
-        Serial.write((midiNote[column][i]));
+        sendNoteOff(midiNote[column][i],127);
       }
       previousButton[column][i] = currentButton[column][i];
     }
@@ -105,16 +113,14 @@ void loop() {
       buttonState = (~PINB >> (i-4)) & 1;
       currentButton[column][i] = buttonState;
 
-      // Send midiNote with 0x80 when pressed
       if ((currentButton[column][i]) && !(previousButton[column][i])) {
         //Serial.print(midiNote[column][i]); Serial.println(" ON");
-        Serial.write((midiNote[column][i]) | 0x80);
+        sendNoteOn(midiNote[column][i],127);
       }
     
-      // Send only midiNote when released
       if (!(currentButton[column][i]) && (previousButton[column][i]) && ((PINB>>4)&1)) {
         //Serial.print(midiNote[column][i]); Serial.println(" OFF");
-        Serial.write((midiNote[column][i]));
+        sendNoteOff(midiNote[column][i],127);
       }
       previousButton[column][i] = currentButton[column][i];
     }
