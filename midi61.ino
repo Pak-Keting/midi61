@@ -5,19 +5,19 @@ uint8_t TRANSPOSE = 0;
 volatile uint8_t columnPin = 1;   //  Keep this value to 1
 volatile uint8_t column = 0;      // *Adjust this value to offset the column
 volatile bool    buttonState;     //  To keep track row button state
-const int        columnCount = 8; // *How many column
+const uint8_t    columnCount = 8; // *How many column
 
 // Button arrays for press and release detection. Also used to list holded button
-int currentButton[8][8];
-int previousButton[8][8];
-int sustainedButton[8][8];
+uint8_t currentButton[8][8];
+uint8_t previousButton[8][8];
+uint8_t sustainedButton[8][8];
 
 // Sustain pedal release detection
 volatile bool currentSustain;
 volatile bool previousSustain = false;
 
 // Midi note value mapping
-const int midiNote[8][8] = {
+const uint8_t midiNote[8][8] = {
   {92, 93, 94, 95, 96, 97, 98, 99},
   {36, 37, 38, 39, 40, 41, 42, 43},
   {44, 45, 46, 47, 48, 49, 50, 51},
@@ -72,8 +72,8 @@ void loop() {
   if (columnPin == 0) columnPin = 1;   // Reset columnPin if it overflows
   column = (column + 1) % columnCount; // Update row index
   
-  int a = columnPin      & 0b00111111;
-  int b = (columnPin>>4) & 0b00001100;
+  uint8_t a = columnPin      & 0b00111111;
+  uint8_t b = (columnPin>>4) & 0b00001100;
   
   currentSustain = !(PINB & (1 << 4)); // Keep track sustain pedal state
 
@@ -81,8 +81,8 @@ void loop() {
   // Send OFF message of all released note when sustain pedal released
   // Send only once on release moment
   if ((currentSustain == 0) && (previousSustain == 1)) {
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
+    for (uint8_t i = 0; i < 8; i++) {
+        for (uint8_t j = 0; j < 8; j++) {
           if(sustainedButton[i][j] && !currentButton[i][j]) {
             sendNoteOff(midiNote[i][j], 0);
             sustainedButton[i][j] = 0;
@@ -95,7 +95,7 @@ void loop() {
 
   /////////////////////////////
   // Rows Scanning
-  for (int i = 0; i < 8; i++) {
+  for (uint8_t i = 0; i < 8; i++) {
     if(i <= 3) {
       buttonState = (~PIND >> (4 + i)) & 1;
       currentButton[column][i] = buttonState;
