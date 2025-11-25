@@ -83,7 +83,7 @@ void loop() {
   if ((currentSustain == 0) && (previousSustain == 1)) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-          if(sustainedButton[i][j]) {
+          if(sustainedButton[i][j] && !currentButton[i][j]) {
             sendNoteOff(midiNote[i][j], 0);
             sustainedButton[i][j] = 0;
           }
