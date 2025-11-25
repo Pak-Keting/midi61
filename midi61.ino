@@ -96,6 +96,9 @@ void loop() {
   /////////////////////////////
   // Rows Scanning
   for (uint8_t i = 0; i < 8; i++) {
+    if(currentSustain && currentButton[column][i]) {
+      sustainedButton[column][i] = 1;
+    }
     if(i <= 3) {
       buttonState = (~PIND >> (4 + i)) & 1;
       currentButton[column][i] = buttonState;
