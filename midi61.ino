@@ -10,6 +10,7 @@ const int        columnCount = 8; // *How many column
 // Button arrays for press and release detection. Also used to list holded button
 int currentButton[8][8];
 int previousButton[8][8];
+int sustainedButton[8][8];
 
 // Sustain pedal release detection
 volatile bool currentSustain;
@@ -79,12 +80,12 @@ void loop() {
   ////////////////////////////////
   // Send OFF message of all released note when sustain pedal released
   // Send only once on release moment
-  if (!currentSustain && previousSustain) {
-    //Serial.println("H");
+  if ((currentSustain == 0) && (previousSustain == 1)) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-          if (!(previousButton[i][j])) { // If a note was active
+          if(sustainedButton[i][j]) {
             sendNoteOff(midiNote[i][j], 0);
+            sustainedButton[i][j] = 0;
           }
         }
       }
@@ -102,9 +103,12 @@ void loop() {
       if ((currentButton[column][i]) && !(previousButton[column][i])) {
         //Serial.print(midiNote[column][i]); Serial.println(" ON");
         sendNoteOn(midiNote[column][i],127);
+        if(currentSustain) {
+          sustainedButton[column][i] = 1;
+        }
       }
     
-      if (!(currentButton[column][i]) && (previousButton[column][i]) && ((PINB>>4)&1)) {
+      if (!(currentButton[column][i]) && (previousButton[column][i]) && (!currentSustain)) {
         //Serial.print(midiNote[column][i]); Serial.println(" OFF");
         sendNoteOff(midiNote[column][i],127);
       }
@@ -117,9 +121,12 @@ void loop() {
       if ((currentButton[column][i]) && !(previousButton[column][i])) {
         //Serial.print(midiNote[column][i]); Serial.println(" ON");
         sendNoteOn(midiNote[column][i],127);
+        if(currentSustain) {
+          sustainedButton[column][i] = 1;
+        }
       }
     
-      if (!(currentButton[column][i]) && (previousButton[column][i]) && ((PINB>>4)&1)) {
+      if (!(currentButton[column][i]) && (previousButton[column][i]) && (!currentSustain)) {
         //Serial.print(midiNote[column][i]); Serial.println(" OFF");
         sendNoteOff(midiNote[column][i],127);
       }
