@@ -72,8 +72,8 @@ void loop() {
   if (columnPin == 0) columnPin = 1;   // Reset columnPin if it overflows
   column = (column + 1) % columnCount; // Update row index
   
-  uint8_t a = columnPin      & 0b00111111;
-  uint8_t b = (columnPin>>4) & 0b00001100;
+  int a = columnPin      & 0b00111111;
+  int b = (columnPin>>4) & 0b00001100;
   
   currentSustain = !(PINB & (1 << 5)); // Keep track sustain pedal state
 
